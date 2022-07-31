@@ -1,3 +1,5 @@
+# AirBnb Scraping
+
 ## Project Overview
 
 A web scraper for AirBnb. This script will extract information like title, price, rating and bedrooms for a given location and print the result as a json file. You can use it to track your next holiday target or collect data for some analytics.
@@ -8,20 +10,30 @@ Also be aware that airbnb could change all tag id's inside of file ***airbnb_lis
 
 ## Project Setup
 
-1. Clone the repository
-2. Create a virtual environment and activate it
+* Clone the repository
+* Create a virtual environment and activate it
 
 ```ShellSession
 $ virtualenv .venv
 $ source .venv/bin/activate
 ```
-3. Install all required packages
+
+* Install all required packages
+
 ```ShellSession
 $ pip install -r requirements.txt
 ```
-4. Run airbnb_run.py
+
+* Run airbnb\_listing\_scraper.py with your own url or with the default url and redirect the output to a file:
+
 ```ShellSession
-$ python airbnb_listing_scraper.py '<url of your query>' ...
+$ python airbnb_listing_scraper.py '<url of your query>' ... > results.json
+```
+
+* you can then use a json tool like [jq](https://stedolan.github.io/jq/) to explore your data:
+
+```ShellSession
+$ jq . results.json
 ```
 
 ## Server Deployment
@@ -34,15 +46,16 @@ Here is a nice guide for installing [Google-Chrome Headless Version](https://www
 
 Check your google-chrome version
 
-```bash
-google-chrome --version
+```ShellSession
+$ google-chrome --version
 ```
 
-Go to the [ChromeDriver](https://chromedriver.chromium.org/) homepage and navigate to the driver file which matches your Chrome version and OS. For example Chrome version 95 for Linux would be
+Go to the [ChromeDriver](https://chromedriver.chromium.org/) homepage and navigate to the driver file which matches your Chrome version and OS. For example Chrome version 104 (beta) for Linux would be
 
-```bash
-wget https://chromedriver.storage.googleapis.com/104.0.5112.29/chromedriver_linux64.zip
-unzip chromedriver_linux64.zip
+```ShellSession
+$ wget https://chromedriver.storage.googleapis.com/104.0.5112.29/chromedriver_linux64.zip
+$ unzip chromedriver_linux64.zip
+$ chmod +x chromedriver
 ```
 
 Test it by including your extracted ChromeDriver path into to following script:
@@ -60,6 +73,6 @@ driver.get('https://google.org/')
 print(driver.title)
 ```
 
-If you don't see any errors, the installation was successful. Now you have to include the commented part inside the method ***__init__*** on file ***airbnb_listing_scraper.py***.
+If you don't see any errors, the installation was successful. Now you have to include the commented part inside the method ***\_\_init\_\_*** on file ***airbnb\_listing\_scraper.py***.
 
-In case you are facing any error messages, please open an issue ticket! 
+In case you are facing any error messages, please open an issue ticket!

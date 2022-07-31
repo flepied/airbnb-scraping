@@ -5,7 +5,7 @@ import sys
 import time
 
 from selenium import webdriver
-from selenium.common.exceptions import (NoSuchElementException, TimeoutException)
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -67,6 +67,7 @@ class AirbnbListingScraper:
             elements = self.driver.find_elements(By.CLASS_NAME, "c4mnd7m")
             for element in elements:
                 info = {"page": self.page}
+                has_beds = True
                 info["url"] = (
                     self.get_element_by_class_name(element, "ln2bl2p")
                     .get_attribute("href")
@@ -76,25 +77,39 @@ class AirbnbListingScraper:
                 info["type"] = self.get_element_by_class_name(
                     element, "t1jojoys"
                 ).text.split(" ⋅ ")[0]
-                info["host_type"] = self.get_element_by_xpath(
-                    element, "//div[contains(@class, 'g1tup9az')]/div[4]/span/span"
-                ).text
-                info["beds"] = int(
-                    self.get_element_by_xpath(
-                        element,
-                        "//div[contains(@class, 'f15liw5s s1cjsi4j')]/span[1]/span",
-                    ).text.split(" ")[0]
-                )
-                info["bedrooms"] = int(
-                    self.get_element_by_xpath(
-                        element,
-                        "//div[contains(@class, 'f15liw5s s1cjsi4j')]/span[2]/span[3]",
-                    ).text.split(" ")[0]
-                )
+                # some listings do not display beds and bedrooms but dates instead
+                try:
+                    info["beds"] = int(
+                        self.get_element_by_xpath(
+                            element,
+                            "//div[contains(@class, 'f15liw5s s1cjsi4j')]/span[1]/span",
+                        ).text.split(" ")[0]
+                    )
+                except (ValueError, NoSuchElementException):
+                    has_beds = False
+                try:
+                    info["bedrooms"] = int(
+                        self.get_element_by_xpath(
+                            element,
+                            "//div[contains(@class, 'f15liw5s s1cjsi4j')]/span[2]/span[3]",
+                            True,
+                        ).text.split(" ")[0]
+                    )
+                except (ValueError, NoSuchElementException):
+                    pass
+                if has_beds:
+                    info["host_type"] = self.get_element_by_xpath(
+                        element, "//div[contains(@class, 'g1tup9az')]/div[4]/span/span"
+                    ).text
+                else:
+                    info["host_type"] = self.get_element_by_xpath(
+                        element, "//div[contains(@class, 'g1tup9az')]/div[3]/span/span"
+                    ).text
                 info["price"] = int(
-                    self.get_element_by_class_name(element, "_tyxjp1").text.split(" €")[
-                        0
-                    ].replace(" ", "").replace(u"\u202f", "")
+                    self.get_element_by_class_name(element, "_tyxjp1")
+                    .text.split(" €")[0]
+                    .replace(" ", "")
+                    .replace("\u202f", "")
                 )
                 try:
                     info["special"] = self.get_element_by_class_name(
