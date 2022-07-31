@@ -21,7 +21,7 @@ $ pip install -r requirements.txt
 ```
 4. Run airbnb_run.py
 ```ShellSession
-$ python airbnb_listing_scraper.py
+$ python airbnb_listing_scraper.py '<url of your query>' ...
 ```
 
 ## Server Deployment
