@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import atexit
 import json
+import os
+import shutil
 import sys
+import tempfile
 import time
 
 from selenium import webdriver
@@ -14,9 +18,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 class AirbnbListingScraper:
     def __init__(self):
         self.PATH = "chromedriver"
+        tempdir = tempfile.mkdtemp()
+        atexit.register(lambda: shutil.rmtree(tempdir))
         chrome_options = webdriver.ChromeOptions()
-        # to debug with a live chrome browser comment the following line
-        chrome_options.add_argument("--headless")
+        # to debug set the NO_HEADLESS env var
+        if not os.getenv("NO_HEADLESS"):
+            chrome_options.add_argument("--headless")
+        # try to avoid side effect from previous sessions
+        chrome_options.add_argument(f"--user-data-dir={tempdir}")
         # switching to English doesn't work
         chrome_options.add_argument("--lang=EN")
         self.driver = webdriver.Chrome(
@@ -53,14 +62,15 @@ class AirbnbListingScraper:
             self.driver.execute_script("window.scrollTo(0, 0);")
             # waiting for an element of the page to load
             try:
-                WebDriverWait(self.driver, 20).until(
-                    EC.presence_of_element_located((By.CLASS_NAME, "c4mnd7m"))
+                WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.CLASS_NAME, "to8eev7"))
                 )
             except TimeoutException:
+                print("Unable to load page in 10s. Exiting.", file=sys.stderr)
                 break
             # click cookie policy
             try:
-                self.driver.find_element(By.CLASS_NAME, "atm_26_18pqv07").click()
+                self.driver.find_element(By.CLASS_NAME, "_148dgdpk").click()
             except NoSuchElementException:
                 pass
             # parse listing elements
@@ -127,7 +137,7 @@ class AirbnbListingScraper:
                 ret.append(info)
             try:
                 next_button = self.get_element_by_xpath(
-                    element, "//a[contains(@class, '_1bfat5l')]", True
+                    self.driver, "//a[contains(@class, '_1bfat5l')]", True
                 )
             except NoSuchElementException:
                 break
@@ -140,7 +150,7 @@ class AirbnbListingScraper:
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         urls = [
-            "https://www.airbnb.com/s/Estepona--Spain/homes?flexible_trip_lengths%5B%5D=one_week&place_id=ChIJ09n2kaXWDA0RzA0t1sXwS4o&refinement_paths%5B%5D=%2Fhomes&tab_id=home_tab&date_picker_type=calendar&adults=6&source=structured_search_input_header&search_type=filter_change&checkin=2022-09-10&checkout=2022-09-17",
+            "https://www.airbnb.com/s/Estepona--Spain/homes?flexible_trip_lengths%5B%5D=one_week&refinement_paths%5B%5D=%2Fhomes&tab_id=home_tab&date_picker_type=calendar&adults=6&source=structured_search_input_header&checkin=2022-09-10&checkout=2022-09-17",
         ]
     else:
         urls = sys.argv[1:]
