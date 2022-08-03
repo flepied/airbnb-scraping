@@ -54,6 +54,7 @@ class AirbnbListingScraper:
                 print(f"Unable to find element for xpath: {xpath}", file=sys.stderr)
 
     def get_info(self, url):
+        print(f"Scraping {url}...", file=sys.stderr)
         self.driver.get(url)
         # Parse data out of the page
         ret = []

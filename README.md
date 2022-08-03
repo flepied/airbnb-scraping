@@ -34,6 +34,7 @@ $ python airbnb_listing_scraper.py '<url of your query>' ... > results.json
 
 ```ShellSession
 $ jq . results.json
+$ jq '.|length' results.json
 ```
 
 ## Server Deployment

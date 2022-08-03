@@ -1,3 +1,5 @@
 .venv
 *.json
 .tox
+*.egg-info
+data
