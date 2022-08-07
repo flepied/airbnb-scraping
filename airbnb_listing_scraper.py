@@ -66,6 +66,9 @@ class AirbnbListingScraper:
                 WebDriverWait(self.driver, 10).until(
                     EC.presence_of_element_located((By.CLASS_NAME, "to8eev7"))
                 )
+                WebDriverWait(self.driver, 10).until(
+                    EC.presence_of_element_located((By.CLASS_NAME, "c4mnd7m"))
+                )
             except TimeoutException:
                 print("Unable to load page in 10s. Exiting.", file=sys.stderr)
                 break
@@ -147,6 +150,9 @@ class AirbnbListingScraper:
             self.page += 1
         return ret
 
+    def quit(self):
+        self.driver.close()
+
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
@@ -159,3 +165,5 @@ if __name__ == "__main__":
     for url in urls:
         ret = scraper.get_info(url)
         print(json.dumps(ret))
+    if not os.getenv("NO_QUIT"):
+        scraper.quit()
