@@ -58,6 +58,7 @@ class AirbnbListingScraper:
         self.driver.get(url)
         # Parse data out of the page
         ret = []
+        nb_listings = 0
         while True:
             print(f"Page {self.page}", file=sys.stderr)
             self.driver.execute_script("window.scrollTo(0, 0);")
@@ -74,19 +75,26 @@ class AirbnbListingScraper:
                 break
             # click cookie policy
             try:
-                self.driver.find_element(By.CLASS_NAME, "_148dgdpk").click()
+                button = self.driver.find_element(By.CLASS_NAME, "_148dgdpk")
+                self.driver.execute_script("arguments[0].click();", button)
             except NoSuchElementException:
                 pass
+            # parse number of listings
+            nb_listings = int(
+                self.get_element_by_xpath(
+                    self.driver,
+                    "//span[contains(@class, 'to8eev7')]",
+                ).text.split(" ")[0]
+            )
             # parse listing elements
             elements = self.driver.find_elements(By.CLASS_NAME, "c4mnd7m")
             for element in elements:
                 info = {"page": self.page}
                 has_beds = True
-                info["url"] = (
-                    self.get_element_by_class_name(element, "ln2bl2p")
-                    .get_attribute("href")
-                    .split("?")[0]
-                )
+                link = self.get_element_by_class_name(element, "ln2bl2p")
+                if not link:
+                    continue
+                info["url"] = link.get_attribute("href").split("?")[0]
                 print(f"Processing {info['url']}", file=sys.stderr)
                 info["type"] = self.get_element_by_class_name(
                     element, "t1jojoys"
@@ -145,9 +153,14 @@ class AirbnbListingScraper:
                 )
             except NoSuchElementException:
                 break
-            next_button.click()
+            self.driver.execute_script("arguments[0].click();", next_button)
             time.sleep(2)
             self.page += 1
+        if len(ret) != nb_listings:
+            print(
+                f"WARNING we missed some listings {len(ret)} != {nb_listings} !!!",
+                file=sys.stderr,
+            )
         return ret
 
     def quit(self):
