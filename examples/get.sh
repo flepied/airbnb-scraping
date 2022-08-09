@@ -28,7 +28,7 @@ output="$datadir/casares"
 mkdir -p $datadir
 
 # get all data for the next 3 months (12 weeks)
-for week in $(seq 12); do
+for week in $(seq 0 12); do
     saturday="$(next_weekday.py 5 $week)"
     next_saturday="$(next_weekday.py 5 $(($week + 1)))"
     scrap "$location" "$output" "$saturday" "$next_saturday"
