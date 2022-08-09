@@ -10,14 +10,18 @@ if len(sys.argv) != 3:
 
 elts = json.load(open(sys.argv[1]))
 prices = [e["price"] for e in elts]
-median = statistics.median(prices)
 mean = statistics.mean(prices)
 stdev = statistics.stdev(prices)
-page = [e["page"] for e in elts if e["url"].find(sys.argv[2]) >= 0]
-page = page[0] if len(page) > 0 else None
+# filter prices that are outside of the standard deviation
+min_price = mean - stdev
+max_price = mean + stdev
+filtered_prices = [p for p in prices if p <= max_price and p >= min_price]
+# compute the median of this filtered prices
+median = statistics.median(filtered_prices)
+listing = [e for e in elts if e["url"].find(sys.argv[2]) >= 0]
+page = listing[0]["page"] if len(listing) > 0 else None
+price = listing[0]["price"] if len(listing) > 0 else 0
 
-print(
-    f"listings={len(prices)} median={median:#.2f}€ mean={mean:#.2f}€ stdev={stdev:#.2f}€ min={min(prices)}€ max={max(prices)}€ page {page}"
-)
+print(f"listings={len(prices)} median={median:#.2f}€ page {page} actual_price={price}€")
 
 # analyze.py ends here
