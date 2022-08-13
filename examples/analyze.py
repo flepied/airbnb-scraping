@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import json
 import statistics
@@ -33,6 +33,6 @@ for id in airbnb:
     price = listing[0]["price"] if len(listing) > 0 else 0
     extra += f" {airbnb[id]}={price}€ page {page}"
 
-print(f"listings={len(prices)} median={median:#.2f}€{extra}")
+print(f"listings={len(prices):#03d} median={median:#.2f}€{extra}")
 
 # analyze.py ends here
