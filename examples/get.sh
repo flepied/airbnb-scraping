@@ -36,7 +36,7 @@ done
 
 for f in "$datadir"/*.json; do
     echo -n "$(basename $f .json) "
-    "$TOPDIR/examples/analyze.py" "$f" 573780296900171962
+    "$TOPDIR/examples/analyze.py" "$f" our:573780296900171962
 done
 
 # get.sh ends here
