@@ -67,9 +67,6 @@ class AirbnbListingScraper:
                 WebDriverWait(self.driver, 10).until(
                     EC.presence_of_element_located((By.CLASS_NAME, "to8eev7"))
                 )
-                WebDriverWait(self.driver, 10).until(
-                    EC.presence_of_element_located((By.CLASS_NAME, "c4mnd7m"))
-                )
             except TimeoutException:
                 print("Unable to load page in 10s. Exiting.", file=sys.stderr)
                 break
@@ -88,10 +85,12 @@ class AirbnbListingScraper:
             )
             # parse listing elements
             elements = self.driver.find_elements(By.CLASS_NAME, "c4mnd7m")
+            if len(elements) == 0:
+                break
             for element in elements:
                 info = {"page": self.page}
                 has_beds = True
-                link = self.get_element_by_class_name(element, "ln2bl2p")
+                link = self.get_element_by_class_name(element, "ln2bl2p", True)
                 if not link:
                     continue
                 info["url"] = link.get_attribute("href").split("?")[0]
