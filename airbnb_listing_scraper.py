@@ -77,12 +77,21 @@ class AirbnbListingScraper:
             except NoSuchElementException:
                 pass
             # parse number of listings
-            nb_listings = int(
-                self.get_element_by_xpath(
-                    self.driver,
-                    "//span[contains(@class, 'to8eev7')]",
-                ).text.split(" ")[0]
-            )
+            while True:
+                try:
+                    nb_listings = int(
+                        self.get_element_by_xpath(
+                            self.driver,
+                            "//span[contains(@class, 'to8eev7')]",
+                        ).text.split(" ")[0]
+                    )
+                    break
+                except ValueError:
+                    time.sleep(1)
+                    print(
+                        "Unable to find the number of listing. Trying again...",
+                        file=sys.stderr,
+                    )
             # parse listing elements
             elements = self.driver.find_elements(By.CLASS_NAME, "c4mnd7m")
             if len(elements) == 0:
@@ -163,7 +172,7 @@ class AirbnbListingScraper:
         return ret
 
     def quit(self):
-        self.driver.close()
+        self.driver.quit()
 
 
 if __name__ == "__main__":

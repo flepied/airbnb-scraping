@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import atexit
+import datetime
 import json
 import os
 import shutil
@@ -24,6 +25,7 @@ class AirbnbPageScraper:
         # to debug set the NO_HEADLESS env var
         if not os.getenv("NO_HEADLESS"):
             chrome_options.add_argument("--headless")
+            chrome_options.add_argument("--window-size=1920,1080")
         # try to avoid side effect from previous sessions
         chrome_options.add_argument(f"--user-data-dir={tempdir}")
         # switching to English doesn't work
@@ -79,6 +81,9 @@ class AirbnbPageScraper:
         self.go_to_next_month()
         self.go_to_next_month()
         self.get_availability(ret)
+        self.go_to_next_month()
+        self.go_to_next_month()
+        self.get_availability(ret)
         return ret
 
     def accept_cookie_policy(self):
@@ -118,11 +123,15 @@ class AirbnbPageScraper:
         elements = self.driver.find_elements(
             By.XPATH, "//td/div[contains(@data-testid, 'calendar-day-')]"
         )
-        print(len(elements))
+        print(f"Loading {len(elements)} calendar elements...", file=sys.stderr)
+        today = datetime.datetime.today()
         for elt in elements:
-            ret[elt.get_attribute("data-testid").split("-")[2]] = (
-                elt.get_attribute("data-is-day-blocked") == "true"
-            )
+            date_str = elt.get_attribute("data-testid").split("-")[2]
+            date = datetime.datetime.strptime(date_str, "%d/%m/%Y")
+            if date > today:
+                ret[date.strftime("%Y-%m-%d")] = (
+                    elt.get_attribute("data-is-day-blocked") == "true"
+                )
 
     def go_to_next_month(self):
         try:
@@ -144,7 +153,7 @@ class AirbnbPageScraper:
         time.sleep(1)
 
     def quit(self):
-        self.driver.close()
+        self.driver.quit()
 
 
 if __name__ == "__main__":

@@ -15,6 +15,7 @@ if len(sys.argv) < 3:
 # Load data
 dirs = sys.argv[1:]
 dates = {}
+all_listings = set()
 for d in dirs:
     dir_name = os.path.basename(d)
     for f in os.listdir(d):
@@ -28,15 +29,16 @@ for d in dirs:
                     for data in json.load(json_file)
                     if data["bedrooms"] >= 3
                 ]
-            if "https://www.airbnb.fr/rooms/16584435" in listings:
-                print(f"ERROR {file_path}")
             if file_name not in dates:
                 dates[file_name] = {}
             dates[file_name][dir_name] = listings
+            all_listings = all_listings.union(set(listings))
 
 # Process data
+print(f"total number of listings: {len(all_listings)}")
 rented = {}
-for d in sorted(dates):
+sorted_dates = sorted(dates)
+for d in sorted_dates:
     print(f"Analysing {d}")
     scraped_dates = sorted(dates[d])
     print("Evolution of the number of listings: ", end="")
@@ -44,17 +46,12 @@ for d in sorted(dates):
         print(f"{len(dates[d][f])} ", end="")
     print()
     last = set(dates[d][scraped_dates[-1]])
-    previous = set(dates[d][scraped_dates[0]])
-    for f in scraped_dates[1:-1]:
-        previous = previous.union(set(dates[d][f]))
-    for removed in previous.difference(last):
+    for removed in all_listings.difference(last):
         print(f"Listing {removed} removed")
         if removed in rented:
             rented[removed] += 1
         else:
             rented[removed] = 1
-    for added in last.difference(previous):
-        print(f"Listing {added} added")
 print()
 print("Ranking")
 for url, number in sorted(rented.items(), key=operator.itemgetter(1), reverse=True):
