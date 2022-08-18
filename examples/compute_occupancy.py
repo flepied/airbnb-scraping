@@ -35,4 +35,4 @@ for f in files:
         f"{blocked/len(data)*100:#.2f}% for https://www.airbnb.com/rooms/{os.path.basename(f)[:-5]}"
     )
 
-# compute_availability.py ends here
+# compute_occupancy.py ends here
