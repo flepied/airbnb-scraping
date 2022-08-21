@@ -11,7 +11,9 @@ fi
 
 . "$TOPDIR/.tox/functional/bin/activate"
 
-datadir="data/$(date '+%Y-%m-%d')"
+location="$1"
+shift
+datadir="data/$(date '+%Y-%m-%d')/$location"
 
 mkdir -p $datadir
 
