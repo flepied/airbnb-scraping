@@ -16,7 +16,11 @@ exec >> "$datadir/log" 2>&1
 echo "=================================================="
 date
 
-get.sh
+if [ ! -f "$datadir/step1" ]; then
+    get.sh
+    touch "$datadir/step1"
+fi
+
 get_pages.sh casares data/*/casares-*.json
 
 echo "Our occupancy rate:"
